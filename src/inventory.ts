@@ -1,6 +1,7 @@
 export default class Inventory {
     public items: string[] = [];
     private maxSize: number = 10;
+    public money: number = 0;
     public addItem(item: string): boolean {
         if (this.items.length < this.maxSize) {
             this.items.push(item);
@@ -18,5 +19,18 @@ export default class Inventory {
             return true;
         }
         return false;
+    }
+
+    public addMoney(amount: number): void {
+        this.money += amount;
+    }
+
+    public spendMoney(amount: number): boolean {
+        if (amount > this.money) {
+            console.log("Not enough money");
+            return false;
+        }
+        this.money -= amount;
+        return true;
     }
 }

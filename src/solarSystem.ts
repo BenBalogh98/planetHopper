@@ -1,4 +1,3 @@
-import planet from "./planet";
 import Planet from "./planet";
 
 export default class SolarSystem {
@@ -8,4 +7,8 @@ export default class SolarSystem {
         this.planets.push(planet);
     }
 
+    public getPlanetByName(name: string): Planet | null {
+        const planet = this.planets.find(p => p.name.toLowerCase() === name.toLowerCase());
+        return planet || null;
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "watch": ["src"],
+  "ext": "ts,js",
+  "exec": "ts-node src/main.ts start",
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "node_modules/**/node_modules"
+  ],
+  "verbose": true,
+  "execMap": {
+    "ts": "ts-node"
+  }
+}

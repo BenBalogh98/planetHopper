@@ -1,23 +1,14 @@
 import Inventory from "./inventory";
+import Planet from "./planet";
 
 export default class Player {
-    public name: string;
+    public name: string | null = null;
     public fuel: number = 100;
     public inventory: Inventory = new Inventory();
+    public location: Planet | null = null;
 
-    constructor(name: string) {
-        this.name = name;
-    }
-
-    public listItems(): void {
-        if (this.inventory.items.length === 0) {
-            console.log(`${this.name}'s inventory is empty.`);
-        } else {
-            console.log(`${this.name}'s inventory contains:`);
-            this.inventory.items.forEach(item => {
-                console.log(`- ${item}`);
-            });
-        }
+    public getItems(): string[] {
+        return ["fuel: " + this.fuel.toString(), ...this.inventory.items];
     }
 
     public pickItem(item: string): void {
@@ -34,5 +25,14 @@ export default class Player {
         this.fuel -= distance;
         console.log(`${this.name} traveled ${distance} units.`);
         return true;
+    }
+
+    public setLocation(planet: Planet): void {
+        this.location = planet;
+        console.log(`${this.name} is now at ${planet.name}.`);
+    }
+
+    public async interactWithPlanet() {
+        await this.location?.interact();
     }
 }

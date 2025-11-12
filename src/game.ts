@@ -5,13 +5,9 @@ import inquirer from "inquirer";
 import SolarSystem from "./solarSystem";
 
 export default class Game {
-    private players: Player[] = [];
+    public player: Player = new Player();
     private solarSystem: SolarSystem = new SolarSystem();
     private loadingInterval: NodeJS.Timeout | null = null;
-
-    public addPlayer(player: Player): void {
-        this.players.push(player);
-    }
 
     public async start(): Promise<void> {
         await this.loadPlanets();
@@ -22,18 +18,16 @@ export default class Game {
                 message: "What is your username?",
             },
         ]);
-        const player = new Player(answers.username);
-        this.addPlayer(player);
+        this.player.name = answers.username;
         console.log("Game started");
     }
 
     private async loadPlanets(): Promise<void> {
         const api = new API();
         this.displayLoadingMessage();
-        const response = await api.fetchData();
+        const planets = await api.fetchData();
 
-        const data = await response.json();
-        data.forEach((planetData: any) => {
+        planets.forEach((planetData) => {
             const planet = new Planet(planetData.name, planetData.distanceFromSun);
             this.solarSystem.addPlanet(planet);
         });
@@ -54,6 +48,52 @@ export default class Game {
             clearInterval(this.loadingInterval);
             this.loadingInterval = null;
         }
-        console.log("In a galaxy far far away... Starting the adventure!");
+        console.log("\rIn a galaxy far far away... Starting the adventure!");
+    }
+
+    public menu(): void {
+
+    }
+
+    private showHighScores(): void {
+        console.log("High Scores feature is under development.");
+    }
+
+    private exitGame(): void {
+        console.log("Exiting the game. Goodbye!");
+        process.exit(0);
+    }
+
+    private showHelp(): void {
+        console.log("Help section is under development.");
+    }
+
+    private travelPlayer(destination: string): boolean {
+        if (!this.solarSystem) {
+            console.log("❌ No solar system available for travel.");
+            return false;
+        }
+
+        const planet = this.solarSystem.getPlanetByName(destination);
+        if (!planet) {
+            console.log(`❌ Planet "${destination}" not found.`);
+            return false;
+        }
+
+        console.log(`🚀 Traveling to ${planet.name}...`);
+        return true;
+    }
+
+    public getPlanetList(): Planet[] {
+        return this.solarSystem.planets;
+    }
+
+    public getPlanetDistance(planetName: string): number | null {
+        const planet = this.solarSystem.getPlanetByName(planetName);
+        if (!planet) {
+            return null;
+        }
+
+        return planet.getDistanceFrom(this.player.location);
     }
 }
