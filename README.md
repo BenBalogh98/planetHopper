@@ -1,6 +1,9 @@
 npx tsc
 node dist/main.js
 
+npx tsc - translate
+use hopper to start the game in ./dist
+
 use 'npm run watch' to run the TS code and get changes immediately.
 npx hopper to run the game.
 
