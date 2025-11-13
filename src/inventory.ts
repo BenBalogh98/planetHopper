@@ -1,8 +1,11 @@
+import Item from "./item";
+
 export default class Inventory {
-    public items: string[] = [];
+    public items: Item[] = [];
     private maxSize: number = 10;
     public money: number = 0;
-    public addItem(item: string): boolean {
+
+    public addItem(item: Item): boolean {
         if (this.items.length < this.maxSize) {
             this.items.push(item);
             return true;
@@ -12,7 +15,7 @@ export default class Inventory {
         }
     }
 
-    public removeItem(item: string): boolean {
+    public removeItem(item: Item): boolean {
         const index = this.items.indexOf(item);
         if (index > -1) {
             this.items.splice(index, 1);

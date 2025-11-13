@@ -4,9 +4,15 @@ export default class Item {
     public name: ItemType;
     public value: number;
 
-    constructor(name: ItemType) {
-        this.name = name;
-        this.value = this.getValueForType(name);
+    constructor(name?: ItemType) {
+        this.name = name || this.getRandomItemType();
+        this.value = this.getValueForType(this.name);
+    }
+
+    private getRandomItemType(): ItemType {
+        const itemTypes = Object.values(ItemType);
+        const randomIndex = Math.floor(Math.random() * itemTypes.length);
+        return itemTypes[randomIndex];
     }
 
     private getValueForType(type: ItemType): number {
@@ -22,5 +28,9 @@ export default class Item {
 
     private getRandomValue(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    toString(): string {
+        return `${this.name} (Value: ${this.value} credits)`;
     }
 }

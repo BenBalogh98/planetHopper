@@ -27,7 +27,7 @@ export enum GameCommand {
 
 export enum EncounterType {
     TREASURE = "Treasure",
-    HOSTILE = "Accident",
+    ACCIDIENT = "Accident",
     TRADER = "Trader",
     NOTHING = "Nothing"
 

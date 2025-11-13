@@ -1,4 +1,6 @@
+import Encounter, { EncounterEntity } from "./encounter/encounter";
 import Inventory from "./inventory";
+import Item from "./item";
 import Planet from "./planet";
 
 export default class Player {
@@ -8,10 +10,10 @@ export default class Player {
     public location: Planet | null = null;
 
     public getItems(): string[] {
-        return ["fuel: " + this.fuel.toString(), ...this.inventory.items];
+        return ["fuel: " + this.fuel.toString(), ...this.inventory.items.map(item => item.toString())];
     }
 
-    public pickItem(item: string): void {
+    public pickItem(item: Item): void {
         if (this.inventory.addItem(item)) {
             console.log(`${this.name} picked up: ${item}`);
         }
@@ -32,7 +34,7 @@ export default class Player {
         console.log(`${this.name} is now at ${planet.name}.`);
     }
 
-    public async interactWithPlanet() {
-        await this.location?.interact();
+    public interactWithPlanet(): Encounter | null {
+        return this.location?.interact() || null;
     }
 }

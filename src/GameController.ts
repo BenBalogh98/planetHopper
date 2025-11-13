@@ -1,6 +1,9 @@
 import inquirer from "inquirer";
 import Game from "./game";
-import { MenuOption, GameCommand } from "./types/enums";
+import { MenuOption, GameCommand, EncounterType } from "./types/enums";
+import Trader from "./encounter/trader";
+import Encounter from "./encounter/encounter";
+import Item from "./item";
 
 export class GameController {
     private gameInstance: Game | null = null;
@@ -86,6 +89,58 @@ export class GameController {
                     this.gameInstance?.player.setLocation(selectedPlanet);
                 }
             });
+    }
+
+    private async handlePlanetInteraction(): Promise<void> {
+        if (!this.gameInstance) {
+            console.log("❌ No active game. Start a game first!");
+            return;
+        }
+
+        const encounter = this.gameInstance.player.interactWithPlanet();
+
+        if (encounter instanceof Encounter) {
+            switch (encounter.type) {
+                case EncounterType.TRADER:
+                    console.log("🤝 You have encountered a trader!");
+                    await this.handleTraderInteraction(encounter.entity as Trader);
+                    break;
+
+                case EncounterType.TREASURE:
+                    console.log("💎 You found treasure!");
+                    await this.handleTreasureFound(encounter.entity as Item);
+                    break;
+
+                case EncounterType.ACCIDIENT:
+                    console.log("💥 An accident occurred!");
+                    await this.handleAccident();
+                    break;
+
+                case EncounterType.NOTHING:
+                    console.log("🏞️ You explored the area but found nothing of interest.");
+                    break;
+
+                default:
+                    console.log("🌌 Something mysterious happened...");
+            }
+        } else {
+            console.log("🏞️ You interacted with the planet but nothing happened.");
+        }
+    }
+
+    private async handleTraderInteraction(trader: Trader): Promise<void> {
+        // TODO: Implement trader interaction logic
+        console.log("Trading functionality coming soon!");
+    }
+
+    private async handleTreasureFound(treasure: Item): Promise<void> {
+        // TODO: Implement treasure pickup logic
+        console.log("Treasure pickup functionality coming soon!");
+    }
+
+    private async handleAccident(): Promise<void> {
+        // TODO: Implement accident consequences
+        console.log("Accident handling coming soon!");
     }
 
     public async travel(destination?: string): Promise<boolean> {
@@ -186,7 +241,7 @@ export class GameController {
                         break;
                     case GameCommand.LAND:
                     case GameCommand.INTERACT:
-                        await this.gameInstance?.player.interactWithPlanet();
+                        await this.handlePlanetInteraction();
                         break;
                     case GameCommand.HELP:
                         this.showGameHelp();

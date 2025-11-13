@@ -1,4 +1,4 @@
-import Encounter from "./encounter/encounter";
+import Encounter, { EncounterEntity } from "./encounter/encounter";
 
 export default class Planet {
     public name: string;
@@ -17,8 +17,8 @@ export default class Planet {
         return Math.abs(this.distanceFromSun - planet.distanceFromSun);
     }
 
-    public async interact(): Promise<void> {
+    public interact(): Encounter {
         //console.log(`You are interacting with planet ${this.name}.`);
-        await this.encounter.start();
+        return this.encounter;
     }
 }
