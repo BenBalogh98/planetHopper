@@ -4,6 +4,11 @@ export default class Inventory {
     public items: Item[] = [];
     private maxSize: number = 10;
     public money: number = 0;
+    public fuel: number = 0;
+
+    constructor(fuel?: number) {
+        fuel && (this.fuel = fuel);
+    }
 
     public addItem(item: Item): boolean {
         if (this.items.length < this.maxSize) {

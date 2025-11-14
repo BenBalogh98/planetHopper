@@ -6,6 +6,12 @@ export enum ItemType {
     HOLOCRON = "Jedi Holocron"
 }
 
+export enum TreasureType {
+    ITEM = "Item",
+    FUEL = "Fuel",
+    CREDITS = "Credits"
+}
+
 export enum MenuOption {
     START_NEW_GAME = "Start New Game",
     VIEW_HIGH_SCORES = "View High Scores",

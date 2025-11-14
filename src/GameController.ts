@@ -1,13 +1,17 @@
 import inquirer from "inquirer";
 import Game from "./game";
-import { MenuOption, GameCommand, EncounterType } from "./types/enums";
+import { MenuOption, GameCommand, EncounterType, TreasureType } from "./types/enums";
 import Trader from "./encounter/trader";
 import Encounter from "./encounter/encounter";
 import Item from "./item";
+import Treasure from "./treasure";
 
 export class GameController {
     private gameInstance: Game | null = null;
     private originalSigintHandler: NodeJS.SignalsListener[] = [];
+    // RoundCount could be used for high scores as well.
+    private roundCount: number = 0;
+
     // Command handlers
     public async startGame(): Promise<void> {
         console.log("🚀 Initializing Planet Hopper...");
@@ -108,7 +112,7 @@ export class GameController {
 
                 case EncounterType.TREASURE:
                     console.log("💎 You found treasure!");
-                    await this.handleTreasureFound(encounter.entity as Item);
+                    await this.handleTreasureFound(encounter.entity as Treasure);
                     break;
 
                 case EncounterType.ACCIDIENT:
@@ -133,23 +137,47 @@ export class GameController {
         console.log("Trading functionality coming soon!");
     }
 
-    private async handleTreasureFound(treasure: Item): Promise<void> {
-        // TODO: Implement treasure pickup logic
-        console.log("Treasure pickup functionality coming soon!");
+    private async handleTreasureFound(treasure: Treasure): Promise<void> {
+        if (!this.gameInstance) {
+            console.log("❌ No active game. Start a game first!");
+            return;
+        }
+
+        console.log(`📜 ${treasure.getDescription()}`);
+
+        switch (treasure.reward.type) {
+            case TreasureType.ITEM:
+                if (treasure.reward.item) {
+                    this.gameInstance.player.pickItem(treasure.reward.item);
+                }
+                break;
+            case TreasureType.FUEL:
+                if (treasure.reward.fuel) {
+                    this.gameInstance.player.addFuel(treasure.reward.fuel);
+                }
+                break;
+            case TreasureType.CREDITS:
+                if (treasure.reward.credits) {
+                    this.gameInstance.player.addCredits(treasure.reward.credits);
+                }
+                break;
+        }
     }
 
     private async handleAccident(): Promise<void> {
-        // TODO: Implement accident consequences
-        console.log("Accident handling coming soon!");
+        const fuelLoss = this.gameInstance?.player.applyAccidentEffects();
+        console.log(`💥 An accident occurred! Fuel lost: ${fuelLoss}`);
     }
 
+    // With destination parameter, I can implement direct travel without prompt in the future.
     public async travel(destination?: string): Promise<boolean> {
         if (!this.gameInstance) {
             console.log("❌ No active game. Start a game first!");
             return false;
         }
+        const availablePlanets = this.gameInstance.getPlanetList().filter(planet => planet !== this.gameInstance?.player.location);
 
-        const planetList = this.gameInstance.getPlanetList().map((planet) => {
+        const planetList = availablePlanets.map((planet) => {
             return `${planet.name} - ${this.gameInstance?.getPlanetDistance(planet.name)}`;
         });
 
@@ -173,7 +201,7 @@ export class GameController {
         });
 
         if (selectedPlanet) {
-            const travelResult = this.gameInstance?.player.travel(selectedPlanet.getDistanceFrom(this.gameInstance?.player.location));
+            const travelResult = this.gameInstance?.player.travel(selectedPlanet);
 
             // This is a bad desgin actually.
             // game over should trigger if and only if the fuel is less than required for travel AND
@@ -189,6 +217,10 @@ export class GameController {
             // or quit the game.
             if (!travelResult) {
                 console.log("💀 Game over: You ran out of fuel!");
+            }
+            this.roundCount++;
+            if (this.roundCount % 20 === 0) {
+                this.gameInstance.restockTraderFuel();
             }
             return travelResult;
         }
@@ -281,11 +313,12 @@ export class GameController {
 
     private showGameHelp(): void {
         console.log("\n=== Game Commands ===");
-        console.log("inventory, inv    - Show your items");
-        console.log("travel <dest>     - Travel to destination");
-        console.log("help             - Show this help");
-        console.log("quit, exit       - Exit the game");
-        console.log("menu             - Show main menu\n");
+        console.log("inventory, inv    - Show your items, fuel, and credits");
+        console.log("travel            - Travel to another planet");
+        console.log("land, interact    - Interact with current planet");
+        console.log("help              - Show this help");
+        console.log("quit, exit        - Exit the game");
+        console.log("menu              - Show main menu\n");
     }
 }
 

@@ -1,16 +1,20 @@
-import Encounter, { EncounterEntity } from "./encounter/encounter";
+import Encounter from "./encounter/encounter";
 import Inventory from "./inventory";
 import Item from "./item";
 import Planet from "./planet";
 
 export default class Player {
     public name: string | null = null;
-    public fuel: number = 100;
-    public inventory: Inventory = new Inventory();
+    public credits: number = 0;
+    public inventory: Inventory = new Inventory(1000);
     public location: Planet | null = null;
 
     public getItems(): string[] {
-        return ["fuel: " + this.fuel.toString(), ...this.inventory.items.map(item => item.toString())];
+        return [
+            `Fuel: ${this.inventory.fuel} units`,
+            `Credits: ${this.credits}`,
+            ...this.inventory.items.map(item => item.toString())
+        ];
     }
 
     public pickItem(item: Item): void {
@@ -19,12 +23,24 @@ export default class Player {
         }
     }
 
-    public travel(distance: number): boolean {
-        if (distance > this.fuel) {
+    public addFuel(amount: number): void {
+        this.inventory.fuel += amount;
+        console.log(`${this.name} gained ${amount} fuel! Total fuel: ${this.inventory.fuel}`);
+    }
+
+    public addCredits(amount: number): void {
+        this.credits += amount;
+        console.log(`${this.name} gained ${amount} credits! Total credits: ${this.credits}`);
+    }
+
+    public travel(planet: Planet): boolean {
+        const distance = planet.getDistanceFrom(this.location);
+        if (distance > this.inventory.fuel) {
             console.log(`${this.name} does not have enough fuel to travel.`);
             return false;
         }
-        this.fuel -= distance;
+        this.inventory.fuel -= distance;
+        this.location = planet;
         console.log(`${this.name} traveled ${distance} units.`);
         return true;
     }
@@ -36,5 +52,11 @@ export default class Player {
 
     public interactWithPlanet(): Encounter | null {
         return this.location?.interact() || null;
+    }
+
+    public applyAccidentEffects(): number {
+        const fuelLoss = Math.min(20, this.inventory.fuel);
+        this.inventory.fuel -= fuelLoss;
+        return fuelLoss;
     }
 }

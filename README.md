@@ -40,3 +40,9 @@ from gameplay perspective, this is terrible. I can just travel between the 2 clo
 or generate everything when they are created:
 Not the best from real world perspective.
 Much better from gameplay persperctive, because why would anyone visit a far away planet if they can just keep jumping between the 2 closest planet?
+
+whats left:
+finish trader
+finish game over
+implement saving and high scores logic.
+at every 20th travel, restock fuel on planets.

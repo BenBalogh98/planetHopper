@@ -3,6 +3,8 @@ import Planet from "./planet";
 import Player from "./player";
 import inquirer from "inquirer";
 import SolarSystem from "./solarSystem";
+import { EncounterType } from "./types/enums";
+import Trader from "./encounter/trader";
 
 export default class Game {
     public player: Player = new Player();
@@ -20,6 +22,14 @@ export default class Game {
         ]);
         this.player.name = answers.username;
         console.log("Game started");
+    }
+
+    public restockTraderFuel(): void {
+        this.solarSystem.planets.forEach((planet) => {
+            if (planet.encounter.entity instanceof Trader) {
+                planet.encounter.entity.restockFuel();
+            }
+        });
     }
 
     private async loadPlanets(): Promise<void> {
@@ -49,39 +59,6 @@ export default class Game {
             this.loadingInterval = null;
         }
         console.log("\rIn a galaxy far far away... Starting the adventure!");
-    }
-
-    public menu(): void {
-
-    }
-
-    private showHighScores(): void {
-        console.log("High Scores feature is under development.");
-    }
-
-    private exitGame(): void {
-        console.log("Exiting the game. Goodbye!");
-        process.exit(0);
-    }
-
-    private showHelp(): void {
-        console.log("Help section is under development.");
-    }
-
-    private travelPlayer(destination: string): boolean {
-        if (!this.solarSystem) {
-            console.log("❌ No solar system available for travel.");
-            return false;
-        }
-
-        const planet = this.solarSystem.getPlanetByName(destination);
-        if (!planet) {
-            console.log(`❌ Planet "${destination}" not found.`);
-            return false;
-        }
-
-        console.log(`🚀 Traveling to ${planet.name}...`);
-        return true;
     }
 
     public getPlanetList(): Planet[] {

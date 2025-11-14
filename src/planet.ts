@@ -18,7 +18,6 @@ export default class Planet {
     }
 
     public interact(): Encounter {
-        //console.log(`You are interacting with planet ${this.name}.`);
         return this.encounter;
     }
 }
