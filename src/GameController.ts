@@ -1,8 +1,8 @@
 import inquirer from "inquirer";
 import Game from "./game";
 import { MenuOption, GameCommand, EncounterType, TreasureType } from "./types/enums";
-import Trader from "./encounter/trader";
-import Encounter from "./encounter/encounter";
+import Trader from "./event/trader";
+import Encounter from "./event/encounter";
 import Item from "./item";
 import Treasure from "./treasure";
 

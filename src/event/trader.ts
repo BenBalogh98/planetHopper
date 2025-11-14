@@ -1,5 +1,6 @@
 import Inventory from "../inventory";
 import Item from "../item";
+
 export default class Trader {
     public inventory: Inventory = new Inventory();
     private originalFuelStock: number = 0;

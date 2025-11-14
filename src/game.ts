@@ -4,7 +4,7 @@ import Player from "./player";
 import inquirer from "inquirer";
 import SolarSystem from "./solarSystem";
 import { EncounterType } from "./types/enums";
-import Trader from "./encounter/trader";
+import Trader from "./event/trader";
 
 export default class Game {
     public player: Player = new Player();

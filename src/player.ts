@@ -1,4 +1,4 @@
-import Encounter from "./encounter/encounter";
+import Encounter from "./event/encounter";
 import Inventory from "./inventory";
 import Item from "./item";
 import Planet from "./planet";

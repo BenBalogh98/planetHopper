@@ -1,4 +1,4 @@
-import Encounter, { EncounterEntity } from "./encounter/encounter";
+import Encounter, { EncounterEntity } from "./event/encounter";
 
 export default class Planet {
     public name: string;
