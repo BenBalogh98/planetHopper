@@ -1,18 +1,17 @@
-import Encounter from "./event/encounter";
-import Inventory from "./inventory";
-import Item from "./item";
-import Planet from "./planet";
+import Encounter from "../event/encounter";
+import Inventory from "../inventory";
+import Item from "../item";
+import Planet from "../planet";
+import Character from "./character";
 
-export default class Player {
-    public name: string | null = null;
-    public credits: number = 0;
+export default class Player extends Character {
     public inventory: Inventory = new Inventory(1000);
     public location: Planet | null = null;
 
     public getItems(): string[] {
         return [
             `Fuel: ${this.inventory.fuel} units`,
-            `Credits: ${this.credits}`,
+            `Credits: ${this.inventory.money}`,
             ...this.inventory.items.map(item => item.toString())
         ];
     }
@@ -29,8 +28,8 @@ export default class Player {
     }
 
     public addCredits(amount: number): void {
-        this.credits += amount;
-        console.log(`${this.name} gained ${amount} credits! Total credits: ${this.credits}`);
+        this.inventory.money += amount;
+        console.log(`${this.name} gained ${amount} credits! Total credits: ${this.inventory.money}`);
     }
 
     public travel(planet: Planet): boolean {

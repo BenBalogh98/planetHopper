@@ -1,10 +1,11 @@
 import API from "./api";
 import Planet from "./planet";
-import Player from "./player";
+import Player from "./character/player";
 import inquirer from "inquirer";
 import SolarSystem from "./solarSystem";
 import { EncounterType } from "./types/enums";
 import Trader from "./event/trader";
+import Item from "./item";
 
 export default class Game {
     public player: Player = new Player();
@@ -51,6 +52,32 @@ export default class Game {
             dots = dots.length >= 3 ? "" : dots + ".";
             process.stdout.write(`\r${loadingText}${dots}`);
         }, 400);
+    }
+
+    public tradeWithTrader(tradeType: "sell" | "buy", item: Item) {
+        const planet = this.solarSystem.getPlanetByName(this.player.location?.name || "");
+
+        if (!planet || !(planet.encounter.entity instanceof Trader)) {
+            console.log("No trader found on this planet.");
+            return;
+        }
+
+        const trader = planet.encounter.entity;
+
+        if (tradeType === "buy") {
+            if (item && this.player.inventory.money >= item.value) {
+                this.player.buyItem(item);
+                trader.sellItem(item);
+                console.log(`${this.player.name} bought ${item.name} for ${item.value} credits.`);
+            }
+        } else if (tradeType === "sell") {
+            if (item) {
+                this.player.sellItem(item);
+                trader.buyItem(item);
+                console.log(`${this.player.name} sold ${item.name} for ${item.value} credits.`);
+            }
+        }
+
     }
 
     private hideLoadingMessage(): void {

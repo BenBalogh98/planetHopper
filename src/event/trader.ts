@@ -1,11 +1,12 @@
+import Character from "../character/character";
 import Inventory from "../inventory";
 import Item from "../item";
 
-export default class Trader {
-    public inventory: Inventory = new Inventory();
+export default class Trader extends Character {
     private originalFuelStock: number = 0;
 
     constructor() {
+        super();
         for (let i = 0; i < 5; i++) {
             this.inventory.addItem(new Item());
         }

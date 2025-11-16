@@ -134,6 +134,27 @@ export class GameController {
 
     private async handleTraderInteraction(trader: Trader): Promise<void> {
         // TODO: Implement trader interaction logic
+        // IMplement logic to view trader's items.
+        // The buy/sell logic is alredy implemented, just neeed to do the communication with user part.
+
+        // Made an error here...... since items can have different prices, simply passing an items name is not really sufficient.
+
+        // This is a good sell logic. Will need a buy logic too. 
+        // And the proper interface to interact with the trader.
+        const itemChoices = this.gameInstance?.player.inventory.items.map(item => ({
+            name: `${item.name} (${item.value} credits)`,  // What user sees
+            value: item  // What gets returned - the actual Item object!
+        }));
+
+        const selection = await inquirer.prompt([{
+            type: "list",
+            name: "item",
+            message: "Select an item to sell:",
+            choices: itemChoices
+        }]);
+
+        // selection.item is now the actual Item object
+        this.gameInstance?.tradeWithTrader("sell", selection.item);
         console.log("Trading functionality coming soon!");
     }
 
