@@ -38,3 +38,9 @@ export enum EncounterType {
     NOTHING = "Nothing"
 
 }
+
+export enum TradeAction {
+    BUY = "Buy",
+    SELL = "Sell",
+    CANCEL = "Cancel"
+}

@@ -5,7 +5,7 @@ import Planet from "../planet";
 import Character from "./character";
 
 export default class Player extends Character {
-    public inventory: Inventory = new Inventory(1000);
+    public inventory: Inventory = new Inventory(1000, 5000);
     public location: Planet | null = null;
 
     public getItems(): string[] {

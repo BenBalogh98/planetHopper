@@ -3,7 +3,7 @@ import Planet from "./planet";
 import Player from "./character/player";
 import inquirer from "inquirer";
 import SolarSystem from "./solarSystem";
-import { EncounterType } from "./types/enums";
+import { EncounterType, TradeAction } from "./types/enums";
 import Trader from "./event/trader";
 import Item from "./item";
 
@@ -54,7 +54,7 @@ export default class Game {
         }, 400);
     }
 
-    public tradeWithTrader(tradeType: "sell" | "buy", item: Item) {
+    public tradeWithTrader(tradeType: TradeAction, item: Item) {
         const planet = this.solarSystem.getPlanetByName(this.player.location?.name || "");
 
         if (!planet || !(planet.encounter.entity instanceof Trader)) {
@@ -64,13 +64,13 @@ export default class Game {
 
         const trader = planet.encounter.entity;
 
-        if (tradeType === "buy") {
+        if (tradeType === TradeAction.BUY) {
             if (item && this.player.inventory.money >= item.value) {
                 this.player.buyItem(item);
                 trader.sellItem(item);
                 console.log(`${this.player.name} bought ${item.name} for ${item.value} credits.`);
             }
-        } else if (tradeType === "sell") {
+        } else if (tradeType === TradeAction.SELL) {
             if (item) {
                 this.player.sellItem(item);
                 trader.buyItem(item);

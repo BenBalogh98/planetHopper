@@ -6,8 +6,9 @@ export default class Inventory {
     public money: number = 0;
     public fuel: number = 0;
 
-    constructor(fuel?: number) {
+    constructor(fuel?: number, money?: number) {
         fuel && (this.fuel = fuel);
+        money && (this.money = money);
     }
 
     public addItem(item: Item): boolean {

@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 import Game from "./game";
-import { MenuOption, GameCommand, EncounterType, TreasureType } from "./types/enums";
+import { MenuOption, GameCommand, EncounterType, TreasureType, TradeAction } from "./types/enums";
 import Trader from "./event/trader";
 import Encounter from "./event/encounter";
 import Item from "./item";
@@ -107,7 +107,12 @@ export class GameController {
             switch (encounter.type) {
                 case EncounterType.TRADER:
                     console.log("🤝 You have encountered a trader!");
-                    await this.handleTraderInteraction(encounter.entity as Trader);
+                    const tradeResponse = await this.startTraderInteraction();
+                    if (tradeResponse !== TradeAction.CANCEL) {
+                        console.log("Trading functionality coming soon!");
+                        // await this.handleTraderInteraction(encounter.entity as Trader);
+                        await this.handleTraderInteraction(tradeResponse);
+                    }
                     break;
 
                 case EncounterType.TREASURE:
@@ -132,30 +137,52 @@ export class GameController {
         }
     }
 
-    private async handleTraderInteraction(trader: Trader): Promise<void> {
-        // TODO: Implement trader interaction logic
-        // IMplement logic to view trader's items.
-        // The buy/sell logic is alredy implemented, just neeed to do the communication with user part.
+    private async handleTraderInteraction(type: TradeAction): Promise<void> {
+        // FUel still can not be bought.
+        if (type === TradeAction.SELL) {
+            const itemChoices = this.gameInstance?.player.inventory.items.map(item => ({
+                name: `${item.name} (${item.value} credits)`,  // What user sees
+                value: item  // What gets returned - the actual Item object!
+            }));
 
-        // Made an error here...... since items can have different prices, simply passing an items name is not really sufficient.
+            const selection = await inquirer.prompt([{
+                type: "list",
+                name: "item",
+                message: "Select an item to sell:",
+                choices: itemChoices
+            }]);
 
-        // This is a good sell logic. Will need a buy logic too. 
-        // And the proper interface to interact with the trader.
-        const itemChoices = this.gameInstance?.player.inventory.items.map(item => ({
-            name: `${item.name} (${item.value} credits)`,  // What user sees
-            value: item  // What gets returned - the actual Item object!
-        }));
+            // selection.item is now the actual Item object
+            this.gameInstance?.tradeWithTrader(TradeAction.SELL, selection.item);
+        } else if (type === TradeAction.BUY) {
+            const itemChoices = (this.gameInstance?.player.location?.encounter.entity as Trader)?.inventory.items.map(item => ({
+                name: `${item.name} (${item.value} credits)`,  // What user sees
+                value: item  // What gets returned - the actual Item object!
+            }));
 
-        const selection = await inquirer.prompt([{
-            type: "list",
-            name: "item",
-            message: "Select an item to sell:",
-            choices: itemChoices
-        }]);
+            const selection = await inquirer.prompt([{
+                type: "list",
+                name: "item",
+                message: "Select an item to buy:",
+                choices: itemChoices
+            }]);
 
-        // selection.item is now the actual Item object
-        this.gameInstance?.tradeWithTrader("sell", selection.item);
-        console.log("Trading functionality coming soon!");
+            // selection.item is now the actual Item object
+            this.gameInstance?.tradeWithTrader(TradeAction.BUY, selection.item);
+        }
+    }
+
+    private async startTraderInteraction(): Promise<TradeAction> {
+        const response = (await inquirer.prompt([
+            {
+                type: "list",
+                name: "tradeAction",
+                message: "Do you want to buy or sell items?",
+                choices: ["Buy", "Sell", "Cancel"],
+            },
+        ])).tradeAction;
+
+        return response;
     }
 
     private async handleTreasureFound(treasure: Treasure): Promise<void> {
