@@ -5,6 +5,7 @@ import Trader from "./event/trader";
 import Encounter from "./event/encounter";
 import Item from "./item";
 import Treasure from "./treasure";
+import { FUELCOST } from "./types/consts";
 
 export class GameController {
     private gameInstance: Game | null = null;
@@ -116,12 +117,10 @@ export class GameController {
                     break;
 
                 case EncounterType.TREASURE:
-                    console.log("💎 You found treasure!");
                     await this.handleTreasureFound(encounter.entity as Treasure);
                     break;
 
                 case EncounterType.ACCIDIENT:
-                    console.log("💥 An accident occurred!");
                     await this.handleAccident();
                     break;
 
@@ -155,20 +154,34 @@ export class GameController {
             // selection.item is now the actual Item object
             this.gameInstance?.tradeWithTrader(TradeAction.SELL, selection.item);
         } else if (type === TradeAction.BUY) {
-            const itemChoices = (this.gameInstance?.player.location?.encounter.entity as Trader)?.inventory.items.map(item => ({
-                name: `${item.name} (${item.value} credits)`,  // What user sees
+            const trader = this.gameInstance?.player.location?.encounter.entity as Trader;
+            const itemChoices: { name: string; value: Item | null | string }[] = trader.inventory.items.map(item => ({
+                name: `${item.name} - (${item.value} credits)`,  // What user sees
                 value: item  // What gets returned - the actual Item object!
             }));
 
-            const selection = await inquirer.prompt([{
+            itemChoices.unshift({ name: `Fuel X${trader.inventory.fuel} - ${FUELCOST} credits`, value: "FUEL" });
+            itemChoices.unshift({ name: "Cancel", value: null });
+
+
+            const selection: { item: Item | null | "FUEL" } = (await inquirer.prompt([{
                 type: "list",
                 name: "item",
                 message: "Select an item to buy:",
                 choices: itemChoices
-            }]);
+            }])).item;
+
+            if (selection === null) {
+                console.log("Purchase cancelled.");
+                return;
+            }
 
             // selection.item is now the actual Item object
-            this.gameInstance?.tradeWithTrader(TradeAction.BUY, selection.item);
+            if (selection === "FUEL") {
+                this.gameInstance?.buyFuelFromTrader();
+                return;
+            }
+            this.gameInstance?.tradeWithTrader(TradeAction.BUY, selection.item as Item);
         }
     }
 
@@ -191,29 +204,12 @@ export class GameController {
             return;
         }
 
-        console.log(`📜 ${treasure.getDescription()}`);
-
-        switch (treasure.reward.type) {
-            case TreasureType.ITEM:
-                if (treasure.reward.item) {
-                    this.gameInstance.player.pickItem(treasure.reward.item);
-                }
-                break;
-            case TreasureType.FUEL:
-                if (treasure.reward.fuel) {
-                    this.gameInstance.player.addFuel(treasure.reward.fuel);
-                }
-                break;
-            case TreasureType.CREDITS:
-                if (treasure.reward.credits) {
-                    this.gameInstance.player.addCredits(treasure.reward.credits);
-                }
-                break;
-        }
+        this.gameInstance.player.applyTreasureEffects(treasure);
     }
 
     private async handleAccident(): Promise<void> {
         const fuelLoss = this.gameInstance?.player.applyAccidentEffects();
+        if (!fuelLoss) return;
         console.log(`💥 An accident occurred! Fuel lost: ${fuelLoss}`);
     }
 

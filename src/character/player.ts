@@ -3,6 +3,8 @@ import Inventory from "../inventory";
 import Item from "../item";
 import Planet from "../planet";
 import Character from "./character";
+import Treasure from "../treasure";
+import { TreasureType } from "../types/enums";
 
 export default class Player extends Character {
     public inventory: Inventory = new Inventory(1000, 5000);
@@ -54,8 +56,35 @@ export default class Player extends Character {
     }
 
     public applyAccidentEffects(): number {
-        const fuelLoss = Math.min(20, this.inventory.fuel);
-        this.inventory.fuel -= fuelLoss;
-        return fuelLoss;
+        if (this.location?.encounter.start()) {
+            const fuelLoss = Math.min(20, this.inventory.fuel);
+            this.inventory.fuel -= fuelLoss;
+            return fuelLoss;
+        }
+        return 0;
+    }
+
+    public applyTreasureEffects(treasure: Treasure): void {
+        if (this.location?.encounter.start()) {
+            console.log(`📜 ${treasure.getDescription()}`);
+
+            switch (treasure.reward.type) {
+                case TreasureType.ITEM:
+                    if (treasure.reward.item) {
+                        this.pickItem(treasure.reward.item);
+                    }
+                    break;
+                case TreasureType.FUEL:
+                    if (treasure.reward.fuel) {
+                        this.addFuel(treasure.reward.fuel);
+                    }
+                    break;
+                case TreasureType.CREDITS:
+                    if (treasure.reward.credits) {
+                        this.addCredits(treasure.reward.credits);
+                    }
+                    break;
+            }
+        }
     }
 }

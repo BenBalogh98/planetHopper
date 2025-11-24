@@ -62,6 +62,8 @@ export default class Game {
             return;
         }
 
+
+
         const trader = planet.encounter.entity;
 
         if (tradeType === TradeAction.BUY) {
