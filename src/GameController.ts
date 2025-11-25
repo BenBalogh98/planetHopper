@@ -164,7 +164,7 @@ export class GameController {
             itemChoices.unshift({ name: "Cancel", value: null });
 
 
-            const selection: { item: Item | null | "FUEL" } = (await inquirer.prompt([{
+            const selection: Item | null | "FUEL" = (await inquirer.prompt([{
                 type: "list",
                 name: "item",
                 message: "Select an item to buy:",
@@ -176,13 +176,45 @@ export class GameController {
                 return;
             }
 
-            // selection.item is now the actual Item object
             if (selection === "FUEL") {
-                this.gameInstance?.buyFuelFromTrader();
+                await this.handleFuelTrade();
                 return;
             }
-            this.gameInstance?.tradeWithTrader(TradeAction.BUY, selection.item as Item);
+            this.gameInstance?.tradeWithTrader(TradeAction.BUY, selection as Item);
         }
+    }
+
+    private async handleFuelTrade(): Promise<void> {
+        if (!this.gameInstance) {
+            console.log("❌ No active game. Start a game first!");
+            return;
+        }
+        const trader = this.gameInstance?.player.location?.encounter.entity as Trader;
+        const maxAffordableFuel = Math.floor(this.gameInstance.player.inventory.money / FUELCOST);
+        const maxAvailableFuel = trader.inventory.fuel;
+        const maxPurchasableFuel = Math.min(maxAffordableFuel, maxAvailableFuel);
+
+        if (maxPurchasableFuel <= 0) {
+            console.log("🚫 You cannot afford any fuel or the trader has no fuel left.");
+            return;
+        }
+
+        // Need a cancel logic here. If the user enters 0, we cancel.
+
+        const answers = await inquirer.prompt([{
+            type: "input",
+            name: "fuelAmount",
+            message: `How many units of fuel do you want to buy? (Max: ${maxPurchasableFuel})`,
+            validate: (input) => {
+                const value = parseInt(input, 10);
+                if (isNaN(value) || value < 0 || value > maxPurchasableFuel) {
+                    return `Please enter a valid number between 0 and ${maxPurchasableFuel}.`;
+                }
+                return true;
+            }
+        }]);
+        const fuelAmount = parseInt(answers.fuelAmount, 10);
+        this.gameInstance.buyFuelFromTrader(fuelAmount);
     }
 
     private async startTraderInteraction(): Promise<TradeAction> {

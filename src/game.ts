@@ -6,6 +6,7 @@ import SolarSystem from "./solarSystem";
 import { EncounterType, TradeAction } from "./types/enums";
 import Trader from "./event/trader";
 import Item from "./item";
+import { FUELCOST } from "./types/consts";
 
 export default class Game {
     public player: Player = new Player();
@@ -52,6 +53,29 @@ export default class Game {
             dots = dots.length >= 3 ? "" : dots + ".";
             process.stdout.write(`\r${loadingText}${dots}`);
         }, 400);
+    }
+
+    public buyFuelFromTrader(amount: number): void {
+        if (!this.solarSystem) {
+            console.log("❌ No active game. Start a game first!");
+            return;
+        }
+
+        const trader = this.player.location?.encounter.entity as Trader;
+        if (!trader) {
+            console.log("❌ No trader found.");
+            return;
+        }
+
+        const totalCost = amount * FUELCOST;
+        if (this.player.inventory.money < totalCost) {
+            console.log("🚫 You cannot afford this amount of fuel.");
+            return;
+        }
+
+        this.player.inventory.money -= totalCost;
+        trader.inventory.fuel -= amount;
+        console.log(`⛽ ${this.player.name} bought ${amount} units of fuel for ${totalCost} credits.`);
     }
 
     public tradeWithTrader(tradeType: TradeAction, item: Item) {
