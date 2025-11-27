@@ -111,7 +111,6 @@ export class GameController {
                     const tradeResponse = await this.startTraderInteraction();
                     if (tradeResponse !== TradeAction.CANCEL) {
                         console.log("Trading functionality coming soon!");
-                        // await this.handleTraderInteraction(encounter.entity as Trader);
                         await this.handleTraderInteraction(tradeResponse);
                     }
                     break;
@@ -137,11 +136,10 @@ export class GameController {
     }
 
     private async handleTraderInteraction(type: TradeAction): Promise<void> {
-        // FUel still can not be bought.
         if (type === TradeAction.SELL) {
             const itemChoices = this.gameInstance?.player.inventory.items.map(item => ({
-                name: `${item.name} (${item.value} credits)`,  // What user sees
-                value: item  // What gets returned - the actual Item object!
+                name: `${item.name} (${item.value} credits)`,
+                value: item
             }));
 
             const selection = await inquirer.prompt([{
@@ -156,8 +154,8 @@ export class GameController {
         } else if (type === TradeAction.BUY) {
             const trader = this.gameInstance?.player.location?.encounter.entity as Trader;
             const itemChoices: { name: string; value: Item | null | string }[] = trader.inventory.items.map(item => ({
-                name: `${item.name} - (${item.value} credits)`,  // What user sees
-                value: item  // What gets returned - the actual Item object!
+                name: `${item.name} - (${item.value} credits)`,
+                value: item
             }));
 
             itemChoices.unshift({ name: `Fuel X${trader.inventory.fuel} - ${FUELCOST} credits`, value: "FUEL" });
@@ -198,8 +196,6 @@ export class GameController {
             console.log("🚫 You cannot afford any fuel or the trader has no fuel left.");
             return;
         }
-
-        // Need a cancel logic here. If the user enters 0, we cancel.
 
         const answers = await inquirer.prompt([{
             type: "input",

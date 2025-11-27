@@ -46,3 +46,23 @@ finish trader
 finish game over
 implement saving and high scores logic.
 at every 20th travel, restock fuel on planets.
+
+
+
+
+architecture of saving:
+
+JSON files. One containing only the data necessary for high scores, other containing everything needed for save and load.
+
+high scores type:
+{
+    userName: string,
+    score: number
+}[]
+
+
+save:
+need to stringify the following classes: player, encounter, trader, planet.
+this might not be okay... lots of classes create instances of other classes.
+what happens if I just make a json.stringify of game? Since it contains all data, it might be enough, or actually, more than enough.
+Might need to create specific toJson functions to get only the necessary information of classes that contains lots of things.
